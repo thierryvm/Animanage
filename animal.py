@@ -14,31 +14,24 @@ class Animal:
     Attributs :
         nom (str) : Le nom de l'animal.
         espece (str) : L'espèce de l'animal.
-        date_naissance (str) : La date de naissance de l'animal
-                                (format AAAA-MM-JJ).
         poids (float) : Le poids de l'animal en kg.
     """
 
-    def __init__(self, nom, espece, date_naissance, poids):
+    def __init__(self, nom, espece, poids):
         """
         Initialise un nouvel animal.
 
         :param nom: str : Le nom de l'animal.
         :param espece: str : L'espèce de l'animal.
-        :param date_naissance: str : La date de naissance de l'animal
-                                    (format AAAA-MM-JJ).
         :param poids: float : Le poids de l'animal en kg.
         """
         self.nom = nom
         self.espece = espece
-        self.date_naissance = date_naissance
         self.poids = poids
 
-    def afficher_details(self):
+    def __str__(self):
         """
-        Affiche les détails de l'animal.
+        Renvoie une représentation sous forme de chaîne de caractères
+        des détails de l'animal.
         """
-        print(f"Nom : {self.nom}")
-        print(f"Espèce : {self.espece}")
-        print(f"Date de naissance : {self.date_naissance}")
-        print(f"Poids : {self.poids} kg")
+        return f"{self.nom} ({self.espece}), Poids: {self.poids} kg"
