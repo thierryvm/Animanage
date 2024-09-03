@@ -57,6 +57,12 @@ class Database:
                                     (format AAAA-MM-JJ).
         :param poids: float : Le poids de l'animal en kg.
         """
+        if not self.validate_string(nom) or not self.validate_string(espece):
+            raise ValueError("Le nom et l'espèce doivent être valides.")
+
+        if poids <= 0:
+            raise ValueError("Le poids doit être un nombre positif.")
+
         self.cur.execute('''
             INSERT INTO animaux (nom, espece, date_naissance, poids)
             VALUES (?, ?, ?, ?)
@@ -68,3 +74,14 @@ class Database:
         Ferme la connexion à la base de données.
         """
         self.conn.close()
+
+    @staticmethod
+    def validate_string(value):
+        """
+        Valide que la chaîne ne contient que des caractères alphanumériques
+        et des espaces.
+
+        :param value: str : La chaîne à valider.
+        :return: bool : True si la chaîne est valide, sinon False.
+        """
+        return bool(value) and all(c.isalnum() or c.isspace() for c in value)

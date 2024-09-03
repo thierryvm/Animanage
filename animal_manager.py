@@ -1,6 +1,6 @@
-# animal_manager.py
-
 """
+animal_manager.py
+
 Ce module contient la définition de la classe GestionElevage, qui est utilisée
 pour gérer les animaux dans l'application de gestion des élevages. La classe
 permet d'ajouter, de supprimer, de rechercher et d'afficher les animaux.
@@ -30,6 +30,12 @@ class GestionElevage:
         :param espece: str : L'espèce de l'animal.
         :param poids: float : Le poids de l'animal en kg.
         """
+        if not self.validate_string(nom) or not self.validate_string(espece):
+            raise ValueError("Le nom et l'espèce doivent être valides.")
+
+        if poids <= 0:
+            raise ValueError("Le poids doit être un nombre positif.")
+
         animal = {
             'nom': nom,
             'espece': espece,
@@ -43,6 +49,9 @@ class GestionElevage:
 
         :param nom: str : Le nom de l'animal à supprimer.
         """
+        if not self.validate_string(nom):
+            raise ValueError("Le nom est nécessaire pour supprimer un animal.")
+
         self.animaux = [
             animal for animal in self.animaux if animal['nom'] != nom
         ]
@@ -69,6 +78,10 @@ class GestionElevage:
         :return: str : La chaîne décrivant l'animal, ou un message si
                         non trouvé.
         """
+        if not self.validate_string(nom):
+            raise ValueError("Le nom est nécessaire pour rechercher"
+                             "un animal.")
+
         return next(
             (
                 f"{animal['nom']} ({animal['espece']}), "
@@ -78,3 +91,14 @@ class GestionElevage:
             ),
             "Animal non trouvé."
         )
+
+    @staticmethod
+    def validate_string(value):
+        """
+        Valide que la chaîne ne contient que des caractères alphanumériques
+        et des espaces.
+
+        :param value: str : La chaîne à valider.
+        :return: bool : True si la chaîne est valide, sinon False.
+        """
+        return bool(value) and all(c.isalnum() or c.isspace() for c in value)

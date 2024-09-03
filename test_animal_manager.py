@@ -2,7 +2,6 @@
 test_animal_manager.py
 """
 
-
 import unittest
 from animal_manager import GestionElevage
 
