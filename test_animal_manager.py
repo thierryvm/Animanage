@@ -1,5 +1,8 @@
 """
 test_animal_manager.py
+
+Ce module contient des tests unitaires pour la classe `GestionElevage` qui gère
+les animaux dans l'application de gestion des élevages.
 """
 
 import unittest
@@ -23,7 +26,7 @@ class TestGestionElevage(unittest.TestCase):
         """
         self.gestion_elevage.ajouter_animal('Rex', 'Chien', 10.5)
         self.assertEqual(len(self.gestion_elevage.animaux), 1)
-        self.assertEqual(self.gestion_elevage.animaux[0]['nom'], 'Rex')
+        self.assertEqual(self.gestion_elevage.animaux[0].nom, 'Rex')
 
     def test_supprimer_animal(self):
         """

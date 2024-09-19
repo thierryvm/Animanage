@@ -6,28 +6,32 @@ pour gérer les animaux dans l'application de gestion des élevages. La classe
 permet d'ajouter, de supprimer, de rechercher et d'afficher les animaux.
 """
 
+from database import Database
+
 
 class GestionElevage:
     """
     Représente un gestionnaire d'animaux dans l'élevage.
 
     Attributs :
-        animaux (list) : Liste des animaux enregistrés.
+        db (Database) : Instance de la classe Database pour gérer les données.
     """
 
-    def __init__(self):
+    def __init__(self, db_name='animaux.db'):
         """
-        Initialise une instance de GestionElevage avec une liste vide
-        d'animaux.
-        """
-        self.animaux = []
+        Initialise une instance de GestionElevage avec une base de données.
 
-    def ajouter_animal(self, nom, espece, poids):
+        :param db_name: str : Le nom du fichier de la base de données.
         """
-        Ajoute un nouvel animal à la liste des animaux.
+        self.db = Database(db_name)
+
+    def ajouter_animal(self, nom, espece, date_naissance, poids):
+        """
+        Ajoute un nouvel animal à la base de données.
 
         :param nom: str : Le nom de l'animal.
         :param espece: str : L'espèce de l'animal.
+        :param date_naissance: str : La date de naissance de l'animal.
         :param poids: float : Le poids de l'animal en kg.
         """
         if not self.validate_string(nom) or not self.validate_string(espece):
@@ -36,25 +40,19 @@ class GestionElevage:
         if poids <= 0:
             raise ValueError("Le poids doit être un nombre positif.")
 
-        animal = {
-            'nom': nom,
-            'espece': espece,
-            'poids': poids
-        }
-        self.animaux.append(animal)
+        self.db.ajouter_animal(nom, espece, date_naissance, poids)
 
     def supprimer_animal(self, nom):
         """
-        Supprime un animal de la liste des animaux par son nom.
+        Supprime un animal de la base de données par son nom.
 
         :param nom: str : Le nom de l'animal à supprimer.
         """
         if not self.validate_string(nom):
             raise ValueError("Le nom est nécessaire pour supprimer un animal.")
 
-        self.animaux = [
-            animal for animal in self.animaux if animal['nom'] != nom
-        ]
+        self.db.cur.execute("DELETE FROM animaux WHERE nom = ?", (nom,))
+        self.db.conn.commit()
 
     def afficher_animaux(self):
         """
@@ -62,35 +60,34 @@ class GestionElevage:
 
         :return: str : La chaîne décrivant les animaux.
         """
-        if not self.animaux:
-            return "Aucun animal enregistré."
-        return '\n'.join(
-            f"{animal['nom']} ({animal['espece']}), "
-            f"Poids: {animal['poids']} kg"
-            for animal in self.animaux
-        )
+        self.db.cur.execute(
+            "SELECT nom, espece, date_naissance, poids FROM animaux")
+        if animaux := self.db.cur.fetchall():
+            return '\n'.join(
+                f"{animal[0]} ({animal[1]}), Né le {animal[2]}, "
+                f"Poids: {animal[3]} kg" for animal in animaux
+            )
+        return "Aucun animal enregistré."
 
     def rechercher_animal(self, nom):
         """
         Recherche un animal par son nom.
 
         :param nom: str : Le nom de l'animal à rechercher.
-        :return: str : La chaîne décrivant l'animal, ou un message si
-                        non trouvé.
+        :return: str : La chaîne décrivant l'animal, ou un message
+        si non trouvé.
         """
         if not self.validate_string(nom):
-            raise ValueError("Le nom est nécessaire pour rechercher"
-                             "un animal.")
+            raise ValueError(
+                "Le nom est nécessaire pour rechercher un animal.")
 
-        return next(
-            (
-                f"{animal['nom']} ({animal['espece']}), "
-                f"Poids: {animal['poids']} kg"
-                for animal in self.animaux
-                if animal['nom'] == nom
-            ),
-            "Animal non trouvé."
-        )
+        self.db.cur.execute(
+            "SELECT nom, espece, date_naissance, poids FROM animaux "
+            "WHERE nom = ?", (nom,))
+        if animal := self.db.cur.fetchone():
+            return (f"{animal[0]} ({animal[1]}), Né le {animal[2]}, "
+                    f"Poids: {animal[3]} kg")
+        return "Animal non trouvé."
 
     @staticmethod
     def validate_string(value):
